@@ -1,1 +1,0 @@
-print('lab la burlacu')
