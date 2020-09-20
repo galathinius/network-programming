@@ -1,23 +1,39 @@
 import json
+import yaml
+
+import queue
 import xml.etree.ElementTree as ET
 ma_data = {}
 
+q = queue.Queue()
+
 def send_to_file(data):
+    print('opening file')
     f2 = open('parsed.json', "w")
     f2.write(json.dumps(data))
+    print('sending to file')
 
     f2.close()
 
+def parse_person_data():
+    print('entering q')
+    while not q.empty():
+        person = q.get()
+        integrate_data(person)
+        q.task_done()
+    print('exiting q')
+    send_to_file(ma_data)
+
 def integrate_data(data):
+
     print('integrating')
-    print(data)
+    # print(data)
     for person in data:
         if person in ma_data:
             for info in data[person]:
                 ma_data[person][info] = data[person][info]
         else:
             ma_data[person] = data[person]
-    send_to_file(ma_data)
     
 def look_at_names(data):
     print('looking at names')
@@ -30,7 +46,8 @@ def look_at_names(data):
         else :
             data[person]['full_name'] = f'{data[person]["first_name"]} {data[person]["last_name"]}' 
         new_data[data[person]['full_name']] = data[person]
-    integrate_data(new_data)
+    q.put(new_data)
+    # integrate_data(new_data)
         
 
 def parse_json(data):
@@ -64,14 +81,20 @@ def parse_csv(data):
         for j in range(0, len(rows[0])):
             to_add[rows[0][j]] = rows[i][j]
         dict_data[i-1] = to_add
+    # print(dict_data)
     look_at_names(dict_data)
 
 def parse_yml(data):
     print('parsing yml')
     # print(data)
+    yaml_data = yaml.safe_load(data)
+    # print(yaml_data)
     dict_data = {}
+    for i in range (0, len(yaml_data)):
+        dict_data[i] = yaml_data[i]
+    # print(dict_data)
     look_at_names(dict_data)
-    pass
+    # pass
 
 def parse_response(req):
     if 'mime_type' in req:
