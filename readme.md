@@ -5,4 +5,6 @@ get the ip address
 hostname -I
 telnet 0.0.0.0 5321
 
+read the task this program solves in the task.txt file
+
 object pull pattern
