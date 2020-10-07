@@ -5,23 +5,38 @@ from parsing import parse_response
 import queue
  
 link_q = queue.Queue(maxsize=20)
+responses_q = queue.Queue(maxsize=20)
 
 def get_links(req):
     if 'link' in req:
         links = req['link']
         for key in links:
-            link_q.put(links[key])         
+            link_q.put(links[key])   
+
+def process_responses():
+    while True:
+        try:
+            resp = responses_q.get(timeout=7)
+            responses_q.task_done()
+            get_links(resp)
+            parse_response(resp)
+        except queue.Empty:
+            break
 
 def follow(link_to_follow):
     new_link = f"{base_link}{link_to_follow}"
     followed = requests.get(new_link, headers=headers).json()
-    print(f"\nfollowed {link_to_follow}\n")
+    # print(f"\nfollowed {link_to_follow}\n")
+
+    # responses_q.put(followed)
+
     get_links(followed)
     parse_response(followed)
 
 
 def threads_distributor():
     with cf.ThreadPoolExecutor(max_workers=7) as executor:
+        # executor.submit(process_responses)
         while True:
             try:
                 link = link_q.get(timeout=7)
