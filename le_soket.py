@@ -5,16 +5,16 @@ import queue
 import json, re
 import os  
 
-conn_q = queue.Queue()
+# to make a separate function
 
 HOST = '0.0.0.0'
 PORT = 5321
 
-Threads = [] 
-
-ma_file = open('parsed.json', "r")
-file_data = ma_file.read()
-json_data = json.loads(file_data)
+def get_data():
+    with open('parsed.json', "r") as ma_file:
+        file_data = ma_file.read()
+        data = json.loads(file_data)
+        return data
 
 def get_column(column, pattern=None):
     to_return = ''
@@ -36,7 +36,7 @@ def parse_query(query):
     
     query = query.replace('\n', '').replace('\r', '')
     words = query.split(' ')
-    # print(words)
+    
     if words[0] == 'getCol':
         return get_column(words[1])
     elif words[0] == 'getPat':
@@ -62,26 +62,26 @@ def respond(con, adr):
     finally:
         con.close()
 
+def print_info():
+    print(f'soket started, you can connect on the ip:')
+    cmd = "hostname -I |awk '{print $1}'"
+    os.system(cmd) 
+    print(f'using port {PORT} \n')
+
 def start_soket():
+    global json_data
+    json_data = get_data()
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
         s.bind((HOST, PORT))
         s.listen()
-        print(f'soket started, you can connect on the ip:')
-        cmd = "hostname -I |awk '{print $1}'"
-        os.system(cmd) 
-        print(f'using port {PORT} \n')
+        
+        print_info()
 
         while True:
             conn, addr = s.accept()
-
             x = Thread(target=respond, args=(conn, addr))
             x.start()
-            Threads.append(x)
-            
-        for t in Threads: 
-            t.join() 
-        s.close()
-
-start_soket()
-# print(parse_query('getCol email'))
+        
+# start_soket()
