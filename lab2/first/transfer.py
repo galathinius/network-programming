@@ -4,6 +4,11 @@ import hashlib
 
 BUFF_SIZE = 1024
 
+class Socket:
+    def __init__(self, sock):
+        self.sock = sock
+        self.to_addr = None
+
 def make_packet(val):
     return json.dumps({
         'cksm' : hashlib.md5(val.encode('utf-8')).hexdigest(), 
@@ -13,11 +18,6 @@ def make_packet(val):
 def is_valid(packet):
     val = packet['payload']
     return packet['cksm'] == hashlib.md5(val.encode('utf-8')).hexdigest()
-
-class Socket:
-    def __init__(self, sock):
-        self.sock = sock
-        self.to_addr = None
 
 def socket():
     return Socket(skt.socket(skt.AF_INET, skt.SOCK_DGRAM))
