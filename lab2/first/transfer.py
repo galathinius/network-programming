@@ -1,5 +1,5 @@
 import socket as skt
-import json
+import pickle
 import hashlib
 
 BUFF_SIZE = 1024
@@ -10,14 +10,24 @@ class Socket:
         self.to_addr = None
 
 def make_packet(val):
-    return json.dumps({
-        'cksm' : hashlib.md5(val.encode('utf-8')).hexdigest(), 
+    try:
+        val_b = val.encode('utf-8')
+    except (UnicodeDecodeError, AttributeError):
+        val_b = val
+
+    return pickle.dumps({
+        'cksm' : hashlib.md5(val_b).hexdigest(), 
         'payload' : val,
-        }).encode('utf-8')
+        })
 
 def is_valid(packet):
     val = packet['payload']
-    return packet['cksm'] == hashlib.md5(val.encode('utf-8')).hexdigest()
+    try:
+        val_b = val.encode('utf-8')
+    except (UnicodeDecodeError, AttributeError):
+        val_b = val
+
+    return packet['cksm'] == hashlib.md5(val_b).hexdigest()
 
 def socket():
     return Socket(skt.socket(skt.AF_INET, skt.SOCK_DGRAM))
@@ -34,10 +44,10 @@ def connect_to(sock, host, port):
     return sock
 
 def send(sock, val):
-    print('sending: ' + val)
+    # print('sending: ' + val)
     sock.sock.sendto(make_packet(val), sock.to_addr)
     data, addr = sock.sock.recvfrom(BUFF_SIZE)
-    packet = json.loads(data.decode('utf-8'))
+    packet = pickle.loads(data)
     while packet['payload'] == 'nack':
         sock.sock.sendto(make_packet(val), sock.to_addr)
         data, addr = sock.sock.recvfrom(BUFF_SIZE)
@@ -49,7 +59,7 @@ def close(sock):
 def recv(sock):
     while True:
         data, addr = sock.sock.recvfrom(BUFF_SIZE)
-        packet = json.loads(data.decode('utf-8'))
+        packet = pickle.loads(data)
         if is_valid(packet):
             sock.sock.sendto(make_packet('ack'), addr)
             if packet['payload'] == 'connect':
