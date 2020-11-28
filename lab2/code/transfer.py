@@ -1,5 +1,6 @@
 import socket as skt
 import pickle
+import base64
 import hashlib
 
 BUFF_SIZE = 1024
@@ -34,6 +35,7 @@ def socket():
 
 def server_socket(host, port):
     sock = socket()
+    sock.sock.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
     sock.sock.bind((host, port))
     return sock
 
@@ -63,6 +65,7 @@ def recv(sock):
         if is_valid(packet):
             sock.sock.sendto(make_packet('ack'), addr)
             if packet['payload'] == 'connect':
+                # print(addr)
                 sock.to_addr = addr
                 print('connection established')
                 return

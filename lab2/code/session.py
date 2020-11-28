@@ -1,4 +1,6 @@
 import transfer as tr
+
+# import lab2.first.transfer as tr
 from encription import encrypt, decrypt, create_keys, get_key_from_string
 
 class Connection:
