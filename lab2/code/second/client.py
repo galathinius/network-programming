@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     file_text = ses.recv(client)
     print(file_text)
-    f = open("received.txt", "w")
-    f.write(file_text)
-    f.close()
+    # f = open("received.txt", "w")
+    # f.write(file_text)
+    # f.close()
     ses.close(client)

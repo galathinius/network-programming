@@ -59,7 +59,7 @@ def close(sock):
     sock.sock.close()
 
 def recv(sock):
-    while True:
+    # while True:
         data, addr = sock.sock.recvfrom(BUFF_SIZE)
         packet = pickle.loads(data)
         if is_valid(packet):

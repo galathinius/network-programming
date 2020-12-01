@@ -1,7 +1,7 @@
-import transfer as tr
+import p1_transfer as tr
 
 # import lab2.first.transfer as tr
-from encription import encrypt, decrypt, create_keys, get_key_from_string
+from p2_1_encription import encrypt, decrypt, create_keys, get_key_from_string
 
 class Connection:
     def __init__(self, keys):

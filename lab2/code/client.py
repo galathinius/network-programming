@@ -1,17 +1,11 @@
-import session as ses
-import sys
+import p3_atm as atm
 
 if __name__ == "__main__":
+    machine = atm.insert_card('15643')
 
-    client = ses.connect_to("0.0.0.0", int(sys.argv[1]))
+    while True:
+        ans = atm.get_answ(machine)
 
-    mess = 'hello there'
+        mess = input(ans) 
+        atm.resp(machine, mess)
 
-    ses.send(mess, client)
-
-    file_text = ses.recv(client)
-    print(file_text)
-    f = open("received.txt", "w")
-    f.write(file_text)
-    f.close()
-    ses.close(client)
