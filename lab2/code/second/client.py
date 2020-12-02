@@ -1,9 +1,9 @@
-import session as ses
+import p2_0_session as ses
 import sys
 
 if __name__ == "__main__":
 
-    client = ses.connect_to("0.0.0.0", int(sys.argv[1]))
+    client = ses.connect_to("0.0.0.0", 1919)
 
     mess = 'hello there'
 
@@ -11,7 +11,4 @@ if __name__ == "__main__":
 
     file_text = ses.recv(client)
     print(file_text)
-    # f = open("received.txt", "w")
-    # f.write(file_text)
-    # f.close()
-    ses.close(client)
+    

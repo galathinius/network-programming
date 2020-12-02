@@ -67,8 +67,3 @@ def recv(conn):
     decripted = decrypt(mess, conn.priv_key)
     # return decoded message
     return decripted
-
-def close(conn):
-    # close connection
-    tr.close(conn.handler)
-    pass

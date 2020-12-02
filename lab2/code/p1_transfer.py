@@ -54,23 +54,18 @@ def send(sock, val):
         sock.sock.sendto(make_packet(val), sock.to_addr)
         data, addr = sock.sock.recvfrom(BUFF_SIZE)
 
-def close(sock):
-    print('closing connection')
-    sock.sock.close()
-
 def recv(sock):
-    # while True:
-        data, addr = sock.sock.recvfrom(BUFF_SIZE)
-        packet = pickle.loads(data)
-        if is_valid(packet):
-            sock.sock.sendto(make_packet('ack'), addr)
-            if packet['payload'] == 'connect':
-                # print(addr)
-                sock.to_addr = addr
-                print('connection established')
-                return
-            else:
-                return packet['payload']
+    data, addr = sock.sock.recvfrom(BUFF_SIZE)
+    packet = pickle.loads(data)
+    if is_valid(packet):
+        sock.sock.sendto(make_packet('ack'), addr)
+        if packet['payload'] == 'connect':
+            # print(addr)
+            sock.to_addr = addr
+            print('connection established')
+            return
         else:
-            sock.sock.sendto(make_packet('nack'), addr)
+            return packet['payload']
+    else:
+        sock.sock.sendto(make_packet('nack'), addr)
         
