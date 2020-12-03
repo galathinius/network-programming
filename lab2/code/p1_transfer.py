@@ -17,7 +17,6 @@ def get_cksm(val):
         val_b = val
     return hashlib.md5(val_b).hexdigest()
     
-
 def make_packet(val):
     return pickle.dumps({
         'cksm' : get_cksm(val), 
@@ -57,11 +56,12 @@ def get_ack(sock, mess, fin = False):
         return packet['payload'] == 'ack'
 
 def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
+    # Yield successive n-sized chunks from lst
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
 def make_header(val):
+    # the header has the checksum of the message as a whole
     return pickle.dumps({
         'cksm' : get_cksm(get_cksm(val)), 
         'payload' : get_cksm(val),
@@ -70,12 +70,13 @@ def make_header(val):
 def send(sock, val):
     for _ in range(5):
         # make header
-        # # send header
+        # send header
         get_ack(sock, make_header(val))
         
         # send parts and get aks
         for part in chunks(val, 10):
             get_ack(sock, make_packet(part))
+
         # get general ak
         if get_ack(sock, make_packet('fin'), True):
             break
@@ -91,13 +92,14 @@ def wait_for_connections(sock):
             return sock
 
 def get_part(sock):
-    data, addr = sock.sock.recvfrom(BUFF_SIZE)
-    packet = pickle.loads(data)
-    if is_valid(packet):
-        sock.sock.sendto(make_packet('ack'), addr)
-        return packet['payload']
-    else:
-        sock.sock.sendto(make_packet('nack'), addr)
+    while True:
+        data, addr = sock.sock.recvfrom(BUFF_SIZE)
+        packet = pickle.loads(data)
+        if is_valid(packet):
+            sock.sock.sendto(make_packet('ack'), addr)
+            return packet['payload']
+        else:
+            sock.sock.sendto(make_packet('nack'), addr)
 
 def recv(sock):
     # get header info

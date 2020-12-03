@@ -17,8 +17,8 @@ def get_acc(card, pin):
     for acc in clients:
         if acc['number'] == card and acc['password'] == pin:
             return acc
-        else:
-            return None
+        
+    return None
 
 def update_acc(acc):
     # update acc in var
