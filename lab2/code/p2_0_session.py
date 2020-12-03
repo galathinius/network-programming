@@ -14,11 +14,12 @@ def start_sever(host, port):
     # create public key
     server = Connection(create_keys())
 
+    # create and assign server handler
     server_handler = tr.server_socket(host, port)
     server.handler = server_handler
 
     # listening for connections
-    tr.recv(server_handler) 
+    tr.wait_for_connections(server_handler) 
 
     # send public key
     key_string = server.pub_key.exportKey("PEM").decode('utf-8')
@@ -35,6 +36,7 @@ def connect_to(host, port):
     # create client public key
     client = Connection(create_keys())
 
+    # create and assign client handler
     proto_handler = tr.socket()
     client.handler = proto_handler
 
